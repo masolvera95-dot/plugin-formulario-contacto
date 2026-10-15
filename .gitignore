@@ -1,0 +1,32 @@
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editores
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Archivos temporales y respaldos
+*.tmp
+*.bak
+*.old
+*.orig
+*~
+
+# Dependencias de Composer, si se agregan en el futuro
+/vendor/
+
+# Dependencias de Node.js, si se agregan en el futuro
+/node_modules/
+
+# Archivos de entorno y credenciales
+.env
+.env.*
+!.env.example
+
+# Archivos de registro
+*.log
