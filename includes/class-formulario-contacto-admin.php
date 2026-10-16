@@ -18,13 +18,17 @@ class Formulario_Contacto_Admin {
             'admin_post_formulario_contacto_eliminar',
             array( $this, 'eliminar_mensaje' )
         );
+        add_action(
+            'admin_enqueue_scripts',
+            array( $this, 'cargar_estilos_admin' )
+        );
     }
 
     public function registrar_menu() {
 
         add_menu_page(
-            'Formulario de Contacto',
-            'Formulario de Contacto',
+            'LPSD - Contactos',
+            'LPSD - Contactos',
             'manage_options',
             'formulario-contacto',
             array( $this, 'mostrar_pagina' ),
@@ -32,6 +36,21 @@ class Formulario_Contacto_Admin {
             25
         );
     }
+
+    // Cargar estilos solo en la página del plugin.
+    public function cargar_estilos_admin( $hook_suffix ) {
+
+    if ( 'toplevel_page_formulario-contacto' !== $hook_suffix ) {
+        return;
+    }
+
+    wp_enqueue_style(
+        'lpsd-contactos-admin',
+        plugin_dir_url( dirname( __FILE__ ) ) . 'assets/css/admin-styles.css',
+        array(),
+        '1.0.0'
+    );
+}
 
     public function eliminar_mensaje() {
 

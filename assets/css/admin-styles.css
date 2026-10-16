@@ -1,0 +1,52 @@
+/* ========================================
+   LPSD - Contactos
+   Menú lateral con degradado púrpura
+   ======================================== */
+
+/* Degradado principal del menú */
+#adminmenu li#toplevel_page_formulario-contacto > a {
+    background: linear-gradient(
+        110deg,
+        #6A0DAD 0%,
+        #9400D3 50%,
+        #BF00FF 100%
+    ) !important;
+
+    color: #FFFFFF !important;
+}
+
+/* Texto e icono del menú */
+#adminmenu li#toplevel_page_formulario-contacto > a .wp-menu-name,
+#adminmenu li#toplevel_page_formulario-contacto > a .wp-menu-image::before {
+    color: #FFFFFF !important;
+}
+
+/* Efecto al pasar el cursor */
+#adminmenu li#toplevel_page_formulario-contacto > a:hover {
+    background: linear-gradient(
+        110deg,
+        #52098A 0%,
+        #7B00B8 50%,
+        #A900E8 100%
+    ) !important;
+
+    color: #FFFFFF !important;
+}
+
+/* Menú seleccionado */
+#adminmenu li#toplevel_page_formulario-contacto.current > a {
+    background: linear-gradient(
+        110deg,
+        #52098A 0%,
+        #7B00B8 50%,
+        #A900E8 100%
+    ) !important;
+
+    color: #FFFFFF !important;
+}
+
+/* Texto e icono cuando está seleccionado */
+#adminmenu li#toplevel_page_formulario-contacto.current > a .wp-menu-name,
+#adminmenu li#toplevel_page_formulario-contacto.current > a .wp-menu-image::before {
+    color: #FFFFFF !important;
+}
