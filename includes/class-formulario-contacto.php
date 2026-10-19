@@ -120,19 +120,28 @@ class Formulario_Contacto {
 
     private function redirigir_con_estado( $estado ) {
 
-        $url = home_url(
-            '/prueba-de-formulario-de-contacto/'
-        );
+    // Obtener la URL de retorno enviada por el formulario.
+    $url = isset( $_POST['url_retorno'] )
+        ? esc_url_raw( wp_unslash( $_POST['url_retorno'] ) )
+        : '';
 
-        $url = remove_query_arg( 'estado', $url );
+    // Validar que el destino sea seguro.
+    $url = wp_validate_redirect(
+        $url,
+        home_url( '/' )
+    );
 
-        $url = add_query_arg(
-            'estado',
-            $estado,
-            $url
-        );
+    // Evitar conservar un estado anterior.
+    $url = remove_query_arg( 'estado', $url );
 
-        wp_safe_redirect( $url );
-        exit;
-    }
+    // Agregar el resultado del envío.
+    $url = add_query_arg(
+        'estado',
+        $estado,
+        $url
+    );
+
+    wp_safe_redirect( $url );
+    exit;
+}
 }

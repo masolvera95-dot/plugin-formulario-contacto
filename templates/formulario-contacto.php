@@ -54,7 +54,16 @@ if ( isset( $notificaciones[ $estado ] ) ) {
         'formulario_contacto_nonce'
     );
     ?>
-
+    <input
+        type="hidden"
+        name="accion"
+        value="enviar_formulario_contacto"
+    >
+    <input
+        type="hidden"
+        name="url_retorno"
+        value="<?php echo esc_url(get_permalink()); ?>"
+    >
     <p>
         <label for="nombre">Nombre</label>
         <input
