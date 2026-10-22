@@ -1,4 +1,3 @@
-
 <?php
 /**
  * Plugin Name: Formulario de Contacto
@@ -11,13 +10,15 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+define( 'FORMULARIO_CONTACTO_DB_VERSION', '1.1.0' );
+
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-formulario-contacto-db.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-formulario-contacto.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-formulario-contacto-admin.php';
 
 function formulario_contacto_activar() {
     $db = new Formulario_Contacto_DB();
-    $db->crear_tabla();
+    $db->maybe_migrar();
 }
 
 register_activation_hook(
