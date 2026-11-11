@@ -1,9 +1,9 @@
-/* ========================================
+/* =========================================================
    LPSD - Contactos
-   Menú lateral con degradado púrpura
-   ======================================== */
+   Estilos del panel administrativo
+   ========================================================= */
 
-/* Degradado principal del menú */
+/* Menú lateral con degradado púrpura */
 #adminmenu li#toplevel_page_formulario-contacto > a {
     background: linear-gradient(
         110deg,
@@ -15,13 +15,11 @@
     color: #FFFFFF !important;
 }
 
-/* Texto e icono del menú */
 #adminmenu li#toplevel_page_formulario-contacto > a .wp-menu-name,
 #adminmenu li#toplevel_page_formulario-contacto > a .wp-menu-image::before {
     color: #FFFFFF !important;
 }
 
-/* Efecto al pasar el cursor */
 #adminmenu li#toplevel_page_formulario-contacto > a:hover {
     background: linear-gradient(
         110deg,
@@ -33,7 +31,6 @@
     color: #FFFFFF !important;
 }
 
-/* Menú seleccionado */
 #adminmenu li#toplevel_page_formulario-contacto.current > a {
     background: linear-gradient(
         110deg,
@@ -45,8 +42,203 @@
     color: #FFFFFF !important;
 }
 
-/* Texto e icono cuando está seleccionado */
 #adminmenu li#toplevel_page_formulario-contacto.current > a .wp-menu-name,
 #adminmenu li#toplevel_page_formulario-contacto.current > a .wp-menu-image::before {
     color: #FFFFFF !important;
+}
+
+/* =========================================================
+   Detalle de mensaje
+   Estilo más legible y visualmente atractivo
+   ========================================================= */
+
+.lpsd-contactos-admin {
+    --lpsd-ink: #211a35;
+    --lpsd-muted: #665f78;
+    --lpsd-cyan: #00c8d7;
+    --lpsd-pink: #e94bbf;
+    --lpsd-purple: #7d4be8;
+}
+
+.lpsd-contacto-detalle {
+    max-width: 980px;
+    margin: 26px 0;
+    padding: 3px;
+    border-radius: 18px 0 18px 0;
+    background: linear-gradient(
+        130deg,
+        var(--lpsd-cyan),
+        var(--lpsd-purple) 52%,
+        var(--lpsd-pink)
+    );
+    box-shadow: 0 12px 32px rgba(57, 30, 94, 0.14);
+}
+
+.lpsd-contacto-detalle__encabezado,
+.lpsd-contacto-detalle__tarjeta {
+    background: #fff;
+}
+
+.lpsd-contacto-detalle__encabezado {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 24px 28px 20px;
+    border-radius: 15px 0 0 0;
+}
+
+.lpsd-contacto-detalle__eyebrow {
+    display: block;
+    margin-bottom: 7px;
+    color: #6842bd;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.lpsd-contacto-detalle__encabezado h1 {
+    margin: 0;
+    color: var(--lpsd-ink);
+    font-size: 25px;
+    line-height: 1.25;
+}
+
+.lpsd-contacto-detalle__estado {
+    flex: 0 0 auto;
+    padding: 7px 13px;
+    border: 1px solid #9deee3;
+    border-radius: 999px;
+    background: #e9fffb;
+    color: #086c62;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.lpsd-contacto-detalle__tarjeta {
+    margin: 0 1px 1px;
+    padding: 24px 28px 28px;
+    border-radius: 0 0 15px 0;
+}
+
+.lpsd-contacto-detalle__datos {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.lpsd-contacto-detalle__dato {
+    min-width: 0;
+    padding: 15px 17px;
+    border-left: 3px solid var(--lpsd-cyan);
+    border-radius: 3px 12px 12px 3px;
+    background: #f7f5fc;
+    color: var(--lpsd-ink);
+    overflow-wrap: anywhere;
+}
+
+.lpsd-contacto-detalle__dato:nth-child(2) {
+    border-left-color: var(--lpsd-pink);
+}
+
+.lpsd-contacto-detalle__dato:nth-child(3) {
+    border-left-color: var(--lpsd-purple);
+}
+
+.lpsd-contacto-detalle__dato:nth-child(4) {
+    border-left-color: #70bd54;
+}
+
+.lpsd-contacto-detalle__etiqueta {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--lpsd-muted);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.lpsd-contacto-detalle__dato strong,
+.lpsd-contacto-detalle__dato a,
+.lpsd-contacto-detalle__dato > span:last-child {
+    color: var(--lpsd-ink);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.lpsd-contacto-detalle__dato a {
+    text-decoration-color: var(--lpsd-pink);
+    text-underline-offset: 3px;
+}
+
+.lpsd-contacto-detalle__mensaje {
+    margin-top: 24px;
+}
+
+.lpsd-contacto-detalle__mensaje h2 {
+    margin: 0 0 10px;
+    color: var(--lpsd-ink);
+    font-size: 16px;
+}
+
+.lpsd-contacto-detalle__texto {
+    min-height: 120px;
+    padding: 18px 20px;
+    border: 1px solid #e8e1f4;
+    border-radius: 12px 0 42px 0;
+    background:
+        linear-gradient(135deg, rgba(0, 200, 215, 0.06), transparent 45%),
+        linear-gradient(315deg, rgba(233, 75, 191, 0.06), transparent 45%),
+        #fcfbff;
+    color: #29233a;
+    font-size: 14px;
+    line-height: 1.75;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}
+
+.lpsd-contacto-detalle__acciones {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 22px;
+}
+
+.lpsd-contacto-detalle__acciones form {
+    margin: 0;
+}
+
+.lpsd-contacto-detalle__volver {
+    border-color: #d7d0e4 !important;
+    color: #403650 !important;
+}
+
+.lpsd-contacto-detalle__no-leido {
+    border: 0 !important;
+    background: linear-gradient(100deg, #7148d8, #c33cb1) !important;
+    color: #fff !important;
+}
+
+.lpsd-contacto-detalle__no-leido:hover {
+    filter: brightness(0.94);
+    color: #fff !important;
+}
+
+@media (max-width: 700px) {
+    .lpsd-contacto-detalle__encabezado,
+    .lpsd-contacto-detalle__tarjeta {
+        padding: 19px;
+    }
+
+    .lpsd-contacto-detalle__datos {
+        grid-template-columns: 1fr;
+    }
+
+    .lpsd-contacto-detalle__encabezado h1 {
+        font-size: 21px;
+    }
 }

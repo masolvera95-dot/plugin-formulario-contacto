@@ -14,19 +14,37 @@ class Formulario_Contacto_DB {
         $this->table_name = $wpdb->prefix . 'lpsd_contact_messages';
     }
 
+    /**
+     * Ejecuta las migraciones necesarias.
+     */
     public function maybe_migrar() {
-        $db_version = get_option( 'formulario_contacto_db_version', '0.0.0' );
+        $db_version = get_option(
+            'formulario_contacto_db_version',
+            '0.0.0'
+        );
 
-        if ( version_compare( $db_version, FORMULARIO_CONTACTO_DB_VERSION, '>=' ) ) {
+        if (
+            version_compare(
+                $db_version,
+                FORMULARIO_CONTACTO_DB_VERSION,
+                '>='
+            )
+        ) {
             return;
         }
 
         $this->crear_tabla();
         $this->agregar_columna_is_read_si_falta();
 
-        update_option( 'formulario_contacto_db_version', FORMULARIO_CONTACTO_DB_VERSION );
+        update_option(
+            'formulario_contacto_db_version',
+            FORMULARIO_CONTACTO_DB_VERSION
+        );
     }
 
+    /**
+     * Crea la tabla si todavía no existe.
+     */
     public function crear_tabla() {
         global $wpdb;
 
@@ -48,28 +66,32 @@ class Formulario_Contacto_DB {
         dbDelta( $sql );
     }
 
-    public function agregar_columna_is_read_si_falta() {
+    /**
+     * Añade is_read a instalaciones anteriores que no tengan esa columna.
+     */
+    private function agregar_columna_is_read_si_falta() {
         global $wpdb;
 
-        $tabla   = $this->table_name;
-        $columna = 'is_read';
-
-        $resultado = $wpdb->get_results(
+        $columna = $wpdb->get_var(
             $wpdb->prepare(
-                "SHOW COLUMNS FROM {$tabla} LIKE %s",
-                $columna
+                'SHOW COLUMNS FROM ' . $this->table_name . ' LIKE %s',
+                'is_read'
             )
         );
 
-        if ( ! empty( $resultado ) ) {
+        if ( $columna ) {
             return;
         }
 
         $wpdb->query(
-            "ALTER TABLE {$tabla} ADD COLUMN is_read TINYINT(1) NOT NULL DEFAULT 0 AFTER message"
+            "ALTER TABLE {$this->table_name}
+            ADD COLUMN is_read TINYINT(1) NOT NULL DEFAULT 0 AFTER message"
         );
     }
 
+    /**
+     * Guarda un mensaje nuevo.
+     */
     public function guardar_mensaje( $datos ) {
         global $wpdb;
 
@@ -87,25 +109,47 @@ class Formulario_Contacto_DB {
         );
     }
 
-    public function obtener_mensajes() {
+    /**
+     * Obtiene mensajes en uno de los órdenes permitidos.
+     *
+     * recientes: los más nuevos primero.
+     * no_leidos: no leídos primero y luego los más nuevos.
+     */
+    public function obtener_mensajes( $orden = 'recientes' ) {
         global $wpdb;
 
+        if ( 'no_leidos' === $orden ) {
+            $order_by = 'is_read ASC, created_at DESC, id DESC';
+        } else {
+            $order_by = 'created_at DESC, id DESC';
+        }
+
         return $wpdb->get_results(
-            "SELECT * FROM {$this->table_name} ORDER BY created_at DESC"
+            "SELECT *
+            FROM {$this->table_name}
+            ORDER BY {$order_by}"
         );
     }
 
+    /**
+     * Obtiene un mensaje por ID.
+     */
     public function obtener_mensaje( $id ) {
         global $wpdb;
 
         return $wpdb->get_row(
             $wpdb->prepare(
-                "SELECT * FROM {$this->table_name} WHERE id = %d",
-                $id
+                "SELECT *
+                FROM {$this->table_name}
+                WHERE id = %d",
+                absint( $id )
             )
         );
     }
 
+    /**
+     * Actualiza el estado de lectura.
+     */
     public function actualizar_estado_lectura( $id, $is_read ) {
         global $wpdb;
 
@@ -122,12 +166,17 @@ class Formulario_Contacto_DB {
         );
     }
 
+    /**
+     * Elimina un mensaje.
+     */
     public function eliminar_mensaje( $id ) {
         global $wpdb;
 
         return $wpdb->delete(
             $this->table_name,
-            array( 'id' => $id ),
+            array(
+                'id' => absint( $id ),
+            ),
             array( '%d' )
         );
     }

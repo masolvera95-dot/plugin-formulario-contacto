@@ -1,4 +1,3 @@
-
 <?php
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -8,7 +7,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Formulario_Contacto {
 
     public function __construct() {
-
         add_shortcode(
             'formulario_contacto',
             array( $this, 'mostrar_formulario' )
@@ -18,19 +16,31 @@ class Formulario_Contacto {
             'init',
             array( $this, 'procesar_formulario' )
         );
+
+        add_action(
+            'wp_enqueue_scripts',
+            array( $this, 'enqueue_estilos' )
+        );
+    }
+
+    public function enqueue_estilos() {
+        wp_enqueue_style(
+            'formulario-contacto-estilos',
+            plugin_dir_url( dirname( __FILE__ ) ) . 'assets/css/styles.css',
+            array(),
+            '1.1.0'
+        );
     }
 
     public function mostrar_formulario() {
-
         ob_start();
 
-        include plugin_dir_path( __DIR__ ) . 'templates/formulario-contacto.php';
+        include plugin_dir_path( dirname( __FILE__ ) ) . 'templates/formulario-contacto.php';
 
         return ob_get_clean();
     }
 
     public function procesar_formulario() {
-
         if (
             ! isset( $_SERVER['REQUEST_METHOD'] ) ||
             'POST' !== $_SERVER['REQUEST_METHOD']
@@ -38,18 +48,14 @@ class Formulario_Contacto {
             return;
         }
 
-        // Ignorar solicitudes que no sean del formulario público.
         if (
             ! isset( $_POST['accion'] ) ||
             'enviar_formulario_contacto' !==
-                sanitize_text_field(
-                    wp_unslash( $_POST['accion'] )
-                )
+                sanitize_text_field( wp_unslash( $_POST['accion'] ) )
         ) {
             return;
         }
 
-        // Validar el nonce del formulario público.
         if ( ! isset( $_POST['formulario_contacto_nonce'] ) ) {
             $this->redirigir_con_estado( 'error_nonce' );
         }
@@ -58,16 +64,10 @@ class Formulario_Contacto {
             wp_unslash( $_POST['formulario_contacto_nonce'] )
         );
 
-        if (
-            ! wp_verify_nonce(
-                $nonce,
-                'formulario_contacto_enviar'
-            )
-        ) {
+        if ( ! wp_verify_nonce( $nonce, 'formulario_contacto_enviar' ) ) {
             $this->redirigir_con_estado( 'error_nonce' );
         }
 
-        // Recoger y limpiar los datos.
         $nombre = isset( $_POST['nombre'] )
             ? sanitize_text_field( wp_unslash( $_POST['nombre'] ) )
             : '';
@@ -84,22 +84,23 @@ class Formulario_Contacto {
             ? sanitize_textarea_field( wp_unslash( $_POST['mensaje'] ) )
             : '';
 
-        // Validar campos obligatorios.
+        $privacidad_aceptada = isset( $_POST['privacidad'] )
+            && '1' === sanitize_text_field( wp_unslash( $_POST['privacidad'] ) );
+
         if (
             '' === $nombre ||
             '' === $email ||
             '' === $asunto ||
-            '' === $mensaje
+            '' === $mensaje ||
+            ! $privacidad_aceptada
         ) {
             $this->redirigir_con_estado( 'error_campos' );
         }
 
-        // Validar el correo.
         if ( ! is_email( $email ) ) {
             $this->redirigir_con_estado( 'error_email' );
         }
 
-        // Guardar el mensaje.
         $db = new Formulario_Contacto_DB();
 
         $resultado = $db->guardar_mensaje(
@@ -119,29 +120,15 @@ class Formulario_Contacto {
     }
 
     private function redirigir_con_estado( $estado ) {
+        $url = isset( $_POST['url_retorno'] )
+            ? esc_url_raw( wp_unslash( $_POST['url_retorno'] ) )
+            : '';
 
-    // Obtener la URL de retorno enviada por el formulario.
-    $url = isset( $_POST['url_retorno'] )
-        ? esc_url_raw( wp_unslash( $_POST['url_retorno'] ) )
-        : '';
+        $url = wp_validate_redirect( $url, home_url( '/' ) );
+        $url = remove_query_arg( 'estado', $url );
+        $url = add_query_arg( 'estado', $estado, $url );
 
-    // Validar que el destino sea seguro.
-    $url = wp_validate_redirect(
-        $url,
-        home_url( '/' )
-    );
-
-    // Evitar conservar un estado anterior.
-    $url = remove_query_arg( 'estado', $url );
-
-    // Agregar el resultado del envío.
-    $url = add_query_arg(
-        'estado',
-        $estado,
-        $url
-    );
-
-    wp_safe_redirect( $url );
-    exit;
-}
+        wp_safe_redirect( $url );
+        exit;
+    }
 }

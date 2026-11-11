@@ -4,12 +4,10 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-// Obtener el estado de la solicitud.
 $estado = isset( $_GET['estado'] )
     ? sanitize_text_field( wp_unslash( $_GET['estado'] ) )
     : '';
 
-// Definir los mensajes que se pueden mostrar.
 $notificaciones = array(
     'enviado' => array(
         'clase' => 'notice-success',
@@ -21,7 +19,7 @@ $notificaciones = array(
     ),
     'error_campos' => array(
         'clase' => 'notice-error',
-        'texto' => 'Todos los campos son obligatorios.',
+        'texto' => 'Completa todos los campos y acepta el aviso de privacidad.',
     ),
     'error_email' => array(
         'clase' => 'notice-error',
@@ -33,79 +31,95 @@ $notificaciones = array(
     ),
 );
 
-// Mostrar una notificación solo si el estado está contemplado.
 if ( isset( $notificaciones[ $estado ] ) ) {
-
     $notificacion = $notificaciones[ $estado ];
-
-    echo '<p class="notice ' . esc_attr( $notificacion['clase'] ) . '">';
-    echo esc_html( $notificacion['texto'] );
-    echo '</p>';
-
+    ?>
+    <div class="formulario-contacto-notice <?php echo esc_attr( $notificacion['clase'] ); ?>">
+        <?php echo esc_html( $notificacion['texto'] ); ?>
+    </div>
+    <?php
 }
-
 ?>
 
 <form method="post" class="formulario-contacto">
-
     <?php
     wp_nonce_field(
         'formulario_contacto_enviar',
         'formulario_contacto_nonce'
     );
     ?>
+
     <input
         type="hidden"
         name="accion"
         value="enviar_formulario_contacto"
     >
+
     <input
         type="hidden"
         name="url_retorno"
-        value="<?php echo esc_url(get_permalink()); ?>"
+        value="<?php echo esc_url( get_permalink() ); ?>"
     >
-    <p>
-        <label for="nombre">Nombre</label>
-        <input
-            type="text"
-            id="nombre"
-            name="nombre"
-            required
-        >
-    </p>
 
-    <p>
-        <label for="email">Correo electrónico</label>
-        <input
-            type="email"
-            id="email"
-            name="email"
-            required
-        >
-    </p>
+    <div class="formulario-contacto-contenido">
+        <h2 class="formulario-contacto-titulo">ESCRÍBENOS</h2>
 
-    <p>
-        <label for="asunto">Asunto</label>
-        <input
-            type="text"
-            id="asunto"
-            name="asunto"
-            required
-        >
-    </p>
+        <p class="formulario-contacto-introduccion">
+            Si te apasiona el trabajo comunitario, la investigación, la incidencia política o simplemente quieres aportar tu experiencia para construir alternativas más justas e informadas para las juventudes, ¡únete a nuestro equipo y transformemos esta realidad juntos!
+        </p>
 
-    <p>
-        <label for="mensaje">Mensaje</label>
-        <textarea
-            id="mensaje"
-            name="mensaje"
-            rows="6"
-            required
-        ></textarea>
-    </p>
+        <div class="formulario-contacto-campo">
+            <label for="nombre">Nombre</label>
+            <input
+                type="text"
+                id="nombre"
+                name="nombre"
+                required
+            >
+        </div>
 
-    <button type="submit">
-        Enviar mensaje
-    </button>
+        <div class="formulario-contacto-campo">
+            <label for="email">Correo electrónico</label>
+            <input
+                type="email"
+                id="email"
+                name="email"
+                required
+            >
+        </div>
 
+        <div class="formulario-contacto-campo">
+            <label for="asunto">Asunto</label>
+            <input
+                type="text"
+                id="asunto"
+                name="asunto"
+                required
+            >
+        </div>
+
+        <div class="formulario-contacto-campo">
+            <label for="mensaje">Mensaje</label>
+            <textarea
+                id="mensaje"
+                name="mensaje"
+                required
+            ></textarea>
+        </div>
+
+        <label class="formulario-contacto-privacidad" for="privacidad">
+            <input
+                type="checkbox"
+                id="privacidad"
+                name="privacidad"
+                value="1"
+                required
+            >
+            <span>He leído y acepto el <a href="<?php echo esc_url( get_privacy_policy_url() ); ?>" target="_blank">aviso de privacidad</a></span>
+        </label>
+
+        <button type="submit" class="formulario-contacto-enviar">
+            Enviar
+        </button>
+    </div>
 </form>
