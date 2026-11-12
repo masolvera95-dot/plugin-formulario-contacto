@@ -47,10 +47,6 @@
     color: #FFFFFF !important;
 }
 
-/* =========================================================
-   Detalle de mensaje
-   ========================================================= */
-
 .lpsd-contactos-admin {
     --lpsd-ink: #211a35;
     --lpsd-muted: #665f78;
@@ -427,20 +423,201 @@
     max-width: 760px;
 }
 
-@media (max-width: 600px) {
-    .lpsd-mail-card__header,
-    .lpsd-mail-card__body,
-    .lpsd-mail-card__footer {
-        padding-right: 19px;
-        padding-left: 19px;
+/* =========================================================
+   Lista de mensajes: psicodélica y legible
+   ========================================================= */
+
+.lpsd-contactos-lista {
+    --lpsd-ink: #241735;
+    --lpsd-muted: #625a73;
+    --lpsd-cyan: #00cbd4;
+    --lpsd-purple: #7948e8;
+    --lpsd-pink: #ec42b7;
+    --lpsd-lime: #b7ee51;
+}
+
+.lpsd-contactos-lista__titulo {
+    margin: 25px 0 20px !important;
+    color: var(--lpsd-ink);
+    font-size: 30px !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.02em;
+}
+
+.lpsd-contactos-lista .lpsd-busqueda-mensajes {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    max-width: 900px;
+    margin: 0 0 18px;
+    padding: 16px;
+    border: 1px solid rgba(121, 72, 232, 0.18);
+    border-radius: 16px 0 16px 0;
+    background:
+        radial-gradient(
+            circle at 95% 0,
+            rgba(236, 66, 183, 0.12),
+            transparent 34%
+        ),
+        linear-gradient(110deg, #fff, #f8f5ff);
+    box-shadow: 0 8px 24px rgba(58, 35, 92, 0.08);
+}
+
+.lpsd-contactos-lista .lpsd-busqueda-mensajes input[type="search"] {
+    box-sizing: border-box;
+    width: min(100%, 430px);
+    min-height: 42px;
+    padding: 9px 14px;
+    border: 1px solid #d8cdec;
+    border-radius: 10px 0 10px 0;
+    background: #fff;
+    color: var(--lpsd-ink);
+    font-size: 14px;
+    box-shadow: inset 0 1px 3px rgba(36, 23, 53, 0.04);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.lpsd-contactos-lista .lpsd-busqueda-mensajes input[type="search"]:focus {
+    border-color: var(--lpsd-cyan);
+    box-shadow:
+        0 0 0 3px rgba(0, 203, 212, 0.16),
+        0 0 14px rgba(121, 72, 232, 0.1);
+    outline: none;
+}
+
+.lpsd-contactos-lista .lpsd-busqueda-mensajes .button {
+    min-height: 40px;
+    border: 0;
+    border-radius: 999px;
+    background: linear-gradient(100deg, var(--lpsd-purple), var(--lpsd-pink));
+    color: #fff;
+    font-weight: 700;
+    text-shadow: none;
+    box-shadow: 0 5px 13px rgba(121, 72, 232, 0.2);
+}
+
+.lpsd-contactos-lista .lpsd-busqueda-mensajes .button:hover {
+    filter: brightness(1.06);
+    color: #fff;
+}
+
+.lpsd-contactos-lista .formulario-contacto-filtros {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 17px;
+}
+
+.lpsd-contactos-lista .formulario-contacto-filtros .button {
+    border-color: #d9d0eb;
+    border-radius: 999px;
+    background: #fff;
+    color: #493a63;
+    font-weight: 600;
+}
+
+.lpsd-contactos-lista .formulario-contacto-filtros .button-primary {
+    border-color: transparent;
+    background: linear-gradient(100deg, var(--lpsd-purple), var(--lpsd-pink));
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(121, 72, 232, 0.2);
+}
+
+.lpsd-contactos-lista .lpsd-contactos-tabla {
+    width: 100%;
+    max-width: 1200px;
+    overflow: hidden;
+    border: 1px solid #e6def1;
+    border-spacing: 0;
+    border-radius: 14px 0 14px 0;
+    background: #fff;
+    box-shadow: 0 12px 30px rgba(47, 29, 78, 0.09);
+}
+
+.lpsd-contactos-lista .lpsd-contactos-tabla thead {
+    background: linear-gradient(
+        105deg,
+        #542c9c,
+        #7948e8 55%,
+        #c23eae
+    );
+}
+
+.lpsd-contactos-lista .lpsd-contactos-tabla thead th {
+    padding: 14px 12px;
+    border-bottom: 0;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+.lpsd-contactos-lista .lpsd-contactos-tabla tbody td {
+    padding: 13px 12px;
+    border-bottom: 1px solid #eee9f5;
+    color: #30283e;
+    vertical-align: middle;
+}
+
+.lpsd-contactos-lista .lpsd-contactos-tabla tbody tr:nth-child(odd) {
+    background: #fff;
+}
+
+.lpsd-contactos-lista .lpsd-contactos-tabla tbody tr:nth-child(even) {
+    background: #f8f6fc;
+}
+
+.lpsd-contactos-lista .lpsd-contactos-tabla tbody tr:hover {
+    background: #f0fbfc;
+}
+
+.lpsd-contactos-lista .lpsd-contactos-tabla tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.lpsd-contactos-lista .lpsd-contactos-tabla tbody td:first-child {
+    color: #55417a;
+    font-size: 12px;
+}
+
+.lpsd-contactos-lista .lpsd-contactos-tabla a {
+    color: #6539bf;
+    font-weight: 700;
+    text-decoration-color: rgba(236, 66, 183, 0.55);
+    text-underline-offset: 3px;
+}
+
+.lpsd-contactos-lista .lpsd-contactos-tabla a:hover {
+    color: #b72b92;
+}
+
+.lpsd-contactos-lista .lpsd-contactos-tabla .button-link {
+    color: #a52c71;
+    font-weight: 600;
+}
+
+.lpsd-contactos-lista .lpsd-contactos-tabla .button-link:hover {
+    color: #d01968;
+}
+
+@media (max-width: 782px) {
+    .lpsd-contactos-lista__titulo {
+        font-size: 25px !important;
     }
 
-    .lpsd-mail-card__footer {
-        align-items: flex-start;
-        flex-direction: column;
+    .lpsd-contactos-lista .lpsd-busqueda-mensajes {
+        align-items: stretch;
     }
 
-    .lpsd-mail-card__input {
-        max-width: 100%;
+    .lpsd-contactos-lista .lpsd-busqueda-mensajes input[type="search"] {
+        width: 100%;
+        max-width: none;
+    }
+
+    .lpsd-contactos-lista .lpsd-contactos-tabla {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
     }
 }

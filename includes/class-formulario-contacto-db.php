@@ -97,7 +97,7 @@ class Formulario_Contacto_DB {
         );
     }
 
-    public function obtener_mensajes( $orden = 'recientes' ) {
+    public function obtener_mensajes( $orden = 'recientes', $busqueda = '' ) {
         global $wpdb;
 
         if ( 'no_leidos' === $orden ) {
@@ -106,11 +106,27 @@ class Formulario_Contacto_DB {
             $order_by = 'created_at DESC, id DESC';
         }
 
-        return $wpdb->get_results(
-            "SELECT *
-            FROM {$this->table_name}
-            ORDER BY {$order_by}"
-        );
+        $sql = "SELECT *
+                FROM {$this->table_name}";
+
+        $busqueda = trim( sanitize_text_field( $busqueda ) );
+
+        if ( '' !== $busqueda ) {
+            $coincidencia = '%' . $wpdb->esc_like( $busqueda ) . '%';
+
+            $sql .= $wpdb->prepare(
+                ' WHERE name LIKE %s
+                    OR email LIKE %s
+                    OR subject LIKE %s',
+                $coincidencia,
+                $coincidencia,
+                $coincidencia
+            );
+        }
+
+        $sql .= " ORDER BY {$order_by}";
+
+        return $wpdb->get_results( $sql );
     }
 
     public function obtener_mensaje( $id ) {

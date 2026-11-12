@@ -200,3 +200,34 @@
         min-height: 38px;
     }
 }
+
+/* =========================================================
+   Búsqueda de mensajes
+   ========================================================= */
+
+.lpsd-busqueda-mensajes {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin: 18px 0 12px;
+}
+
+.lpsd-busqueda-mensajes input[type="search"] {
+    min-width: 260px;
+    max-width: 420px;
+    min-height: 36px;
+    padding: 8px 12px;
+    border: 1px solid #d4d0ec;
+    border-radius: 10px 0 10px 0;
+    background: #fff;
+    color: #2a2437;
+}
+
+.lpsd-busqueda-mensajes .button {
+    min-height: 36px;
+}
+
+.formulario-contacto-filtros {
+    margin: 10px 0 18px;
+}
