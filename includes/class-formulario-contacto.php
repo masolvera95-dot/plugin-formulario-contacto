@@ -28,7 +28,7 @@ class Formulario_Contacto {
             'formulario-contacto-estilos',
             plugin_dir_url( dirname( __FILE__ ) ) . 'assets/css/styles.css',
             array(),
-            '1.1.0'
+            '1.2.0'
         );
     }
 
@@ -64,7 +64,12 @@ class Formulario_Contacto {
             wp_unslash( $_POST['formulario_contacto_nonce'] )
         );
 
-        if ( ! wp_verify_nonce( $nonce, 'formulario_contacto_enviar' ) ) {
+        if (
+            ! wp_verify_nonce(
+                $nonce,
+                'formulario_contacto_enviar'
+            )
+        ) {
             $this->redirigir_con_estado( 'error_nonce' );
         }
 
@@ -116,7 +121,53 @@ class Formulario_Contacto {
             $this->redirigir_con_estado( 'error_guardado' );
         }
 
+        $correo_enviado = $this->enviar_notificacion_por_correo(
+            $nombre,
+            $email,
+            $asunto,
+            $mensaje
+        );
+
+        if ( ! $correo_enviado ) {
+            $this->redirigir_con_estado( 'enviado_sin_notificacion' );
+        }
+
         $this->redirigir_con_estado( 'enviado' );
+    }
+
+    private function enviar_notificacion_por_correo(
+        $nombre,
+        $email,
+        $asunto,
+        $mensaje
+    ) {
+        $destinatario = sanitize_email(
+            get_option(
+                'formulario_contacto_email_destino',
+                get_option( 'admin_email' )
+            )
+        );
+
+        if ( ! is_email( $destinatario ) ) {
+            return false;
+        }
+
+        $cuerpo = "Se recibió un nuevo mensaje de contacto.\n\n";
+        $cuerpo .= 'Nombre: ' . $nombre . "\n";
+        $cuerpo .= 'Correo: ' . $email . "\n";
+        $cuerpo .= 'Asunto: ' . $asunto . "\n\n";
+        $cuerpo .= "Mensaje:\n" . $mensaje . "\n";
+
+        $cabeceras = array(
+            'Reply-To: ' . $email,
+        );
+
+        return wp_mail(
+            $destinatario,
+            'Nuevo mensaje de contacto',
+            $cuerpo,
+            $cabeceras
+        );
     }
 
     private function redirigir_con_estado( $estado ) {

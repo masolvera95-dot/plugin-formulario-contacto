@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Formulario de Contacto
  * Description: Plugin de formulario de contacto para WordPress.
- * Version: 1.1.0
+ * Version: 1.2.0
  * Author: Manuel Alejandro Sánchez Olvera
  */
 
@@ -16,9 +16,6 @@ require_once plugin_dir_path( __FILE__ ) . 'includes/class-formulario-contacto-d
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-formulario-contacto.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-formulario-contacto-admin.php';
 
-/**
- * Ejecuta la migración tanto al activar como al actualizar/cargar el plugin.
- */
 function formulario_contacto_migrar_base_datos() {
     $db = new Formulario_Contacto_DB();
     $db->maybe_migrar();

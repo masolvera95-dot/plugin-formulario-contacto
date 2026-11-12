@@ -13,6 +13,11 @@ class Formulario_Contacto_Admin {
         );
 
         add_action(
+            'admin_init',
+            array( $this, 'registrar_ajustes_correo' )
+        );
+
+        add_action(
             'admin_post_formulario_contacto_eliminar',
             array( $this, 'eliminar_mensaje' )
         );
@@ -43,18 +48,160 @@ class Formulario_Contacto_Admin {
             'dashicons-email',
             25
         );
+
+        add_submenu_page(
+            'formulario-contacto',
+            'Ajustes de correo',
+            'Ajustes',
+            'manage_options',
+            'formulario-contacto-ajustes',
+            array( $this, 'mostrar_ajustes_correo' )
+        );
+    }
+
+    public function registrar_ajustes_correo() {
+        register_setting(
+            'formulario_contacto_ajustes',
+            'formulario_contacto_email_destino',
+            array(
+                'type'              => 'string',
+                'sanitize_callback' => array( $this, 'sanitizar_email_destino' ),
+                'default'           => get_option( 'admin_email' ),
+            )
+        );
+    }
+
+    public function sanitizar_email_destino( $valor ) {
+        $email = sanitize_email( $valor );
+
+        if ( ! is_email( $email ) ) {
+            add_settings_error(
+                'formulario_contacto_ajustes',
+                'email_invalido',
+                'Introduce una dirección de correo electrónico válida.',
+                'error'
+            );
+
+            return get_option(
+                'formulario_contacto_email_destino',
+                get_option( 'admin_email' )
+            );
+        }
+
+        return $email;
+    }
+
+    public function mostrar_ajustes_correo() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( 'No tienes permisos para ver esta página.' );
+        }
+
+        $email = get_option(
+            'formulario_contacto_email_destino',
+            get_option( 'admin_email' )
+        );
+        ?>
+        <div class="wrap lpsd-mail-settings">
+            <h1 class="lpsd-mail-settings__page-title">
+                Ajustes de correo
+            </h1>
+
+            <?php settings_errors( 'formulario_contacto_ajustes' ); ?>
+
+            <form
+                method="post"
+                action="options.php"
+                class="lpsd-mail-card"
+            >
+                <?php settings_fields( 'formulario_contacto_ajustes' ); ?>
+
+                <div class="lpsd-mail-card__header">
+                    <span class="lpsd-mail-card__eyebrow">
+                        LPSD · CONTACTOS
+                    </span>
+
+                    <h2>Notificaciones por correo</h2>
+
+                    <p>
+                        Elige dónde recibir el aviso cuando alguien envíe
+                        el formulario de contacto.
+                    </p>
+                </div>
+
+                <div class="lpsd-mail-card__body">
+                    <label
+                        class="lpsd-mail-card__label"
+                        for="formulario_contacto_email_destino"
+                    >
+                        Correo destinatario
+                    </label>
+
+                    <input
+                        type="email"
+                        id="formulario_contacto_email_destino"
+                        name="formulario_contacto_email_destino"
+                        value="<?php echo esc_attr( $email ); ?>"
+                        class="lpsd-mail-card__input"
+                        placeholder="nombre@dominio.com"
+                        required
+                    >
+
+                    <p class="lpsd-mail-card__description">
+                        Las notificaciones de nuevos mensajes se enviarán
+                        a esta dirección.
+                    </p>
+                </div>
+
+                <div class="lpsd-mail-card__footer">
+                    <button
+                        type="submit"
+                        class="button button-primary lpsd-mail-card__button"
+                    >
+                        Guardar correo
+                    </button>
+
+                    <span class="lpsd-mail-card__hint">
+                        Puedes cambiar esta dirección cuando quieras.
+                    </span>
+                </div>
+            </form>
+        </div>
+        <?php
     }
 
     public function cargar_estilos_admin( $hook_suffix ) {
-        if ( 'toplevel_page_formulario-contacto' !== $hook_suffix ) {
+        unset( $hook_suffix );
+
+        if ( ! isset( $_GET['page'] ) ) {
             return;
         }
 
+        $pagina = sanitize_key( wp_unslash( $_GET['page'] ) );
+        $paginas_permitidas = array(
+            'formulario-contacto',
+            'formulario-contacto-ajustes',
+        );
+
+        if ( ! in_array( $pagina, $paginas_permitidas, true ) ) {
+            return;
+        }
+
+        $ruta_css = dirname( __FILE__, 2 ) . '/assets/css/admin-styles.css';
+
+        if ( ! file_exists( $ruta_css ) ) {
+            return;
+        }
+
+        $url_css = plugins_url(
+            'assets/css/admin-styles.css',
+            dirname( __FILE__, 2 ) . '/formulario-contacto.php'
+        );
+
         wp_enqueue_style(
             'lpsd-contactos-admin',
-            plugin_dir_url( dirname( __FILE__ ) ) . 'assets/css/admin-styles.css',
+            $url_css,
             array(),
-            '1.0.0'
+            (string) filemtime( $ruta_css )
         );
     }
 

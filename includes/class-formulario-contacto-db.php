@@ -14,9 +14,6 @@ class Formulario_Contacto_DB {
         $this->table_name = $wpdb->prefix . 'lpsd_contact_messages';
     }
 
-    /**
-     * Ejecuta las migraciones necesarias.
-     */
     public function maybe_migrar() {
         $db_version = get_option(
             'formulario_contacto_db_version',
@@ -42,9 +39,6 @@ class Formulario_Contacto_DB {
         );
     }
 
-    /**
-     * Crea la tabla si todavía no existe.
-     */
     public function crear_tabla() {
         global $wpdb;
 
@@ -66,9 +60,6 @@ class Formulario_Contacto_DB {
         dbDelta( $sql );
     }
 
-    /**
-     * Añade is_read a instalaciones anteriores que no tengan esa columna.
-     */
     private function agregar_columna_is_read_si_falta() {
         global $wpdb;
 
@@ -89,9 +80,6 @@ class Formulario_Contacto_DB {
         );
     }
 
-    /**
-     * Guarda un mensaje nuevo.
-     */
     public function guardar_mensaje( $datos ) {
         global $wpdb;
 
@@ -109,12 +97,6 @@ class Formulario_Contacto_DB {
         );
     }
 
-    /**
-     * Obtiene mensajes en uno de los órdenes permitidos.
-     *
-     * recientes: los más nuevos primero.
-     * no_leidos: no leídos primero y luego los más nuevos.
-     */
     public function obtener_mensajes( $orden = 'recientes' ) {
         global $wpdb;
 
@@ -131,9 +113,6 @@ class Formulario_Contacto_DB {
         );
     }
 
-    /**
-     * Obtiene un mensaje por ID.
-     */
     public function obtener_mensaje( $id ) {
         global $wpdb;
 
@@ -147,9 +126,6 @@ class Formulario_Contacto_DB {
         );
     }
 
-    /**
-     * Actualiza el estado de lectura.
-     */
     public function actualizar_estado_lectura( $id, $is_read ) {
         global $wpdb;
 
@@ -166,9 +142,6 @@ class Formulario_Contacto_DB {
         );
     }
 
-    /**
-     * Elimina un mensaje.
-     */
     public function eliminar_mensaje( $id ) {
         global $wpdb;
 

@@ -13,6 +13,10 @@ $notificaciones = array(
         'clase' => 'notice-success',
         'texto' => 'Mensaje enviado correctamente.',
     ),
+    'enviado_sin_notificacion' => array(
+        'clase' => 'notice-warning',
+        'texto' => 'Tu mensaje se guardó correctamente, pero no se pudo enviar el aviso por correo. No es necesario enviarlo de nuevo.',
+    ),
     'error_nonce' => array(
         'clase' => 'notice-error',
         'texto' => 'No se pudo validar la solicitud. Recarga la página e inténtalo de nuevo.',
@@ -115,7 +119,7 @@ if ( isset( $notificaciones[ $estado ] ) ) {
                 value="1"
                 required
             >
-            <span>He leído y acepto el <a href="<?php echo esc_url( get_privacy_policy_url() ); ?>" target="_blank">aviso de privacidad</a></span>
+            <span>He leído y acepto el aviso de privacidad</span>
         </label>
 
         <button type="submit" class="formulario-contacto-enviar">

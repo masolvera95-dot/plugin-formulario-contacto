@@ -174,6 +174,12 @@
     color: #8c2d2d;
 }
 
+.formulario-contacto-notice.notice-warning {
+    border: 1px solid #e6c45c;
+    background: #fff8df;
+    color: #705600;
+}
+
 @media (max-width: 600px) {
     .formulario-contacto {
         margin: 20px auto;
