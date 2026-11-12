@@ -97,34 +97,61 @@ class Formulario_Contacto_DB {
         );
     }
 
-    public function obtener_mensajes( $orden = 'recientes', $busqueda = '' ) {
+    public function obtener_mensajes(
+        $orden = 'recientes',
+        $busqueda = '',
+        $filtro_estado = 'todos'
+    ) {
         global $wpdb;
 
-        if ( 'no_leidos' === $orden ) {
-            $order_by = 'is_read ASC, created_at DESC, id DESC';
-        } else {
-            $order_by = 'created_at DESC, id DESC';
+        $orden = 'no_leidos' === $orden
+            ? 'no_leidos'
+            : 'recientes';
+
+        $filtros_validos = array( 'todos', 'no_leidos', 'leidos' );
+
+        if ( ! in_array( $filtro_estado, $filtros_validos, true ) ) {
+            $filtro_estado = 'todos';
         }
 
-        $sql = "SELECT *
-                FROM {$this->table_name}";
+        $condiciones = array();
+        $valores     = array();
 
         $busqueda = trim( sanitize_text_field( $busqueda ) );
 
         if ( '' !== $busqueda ) {
             $coincidencia = '%' . $wpdb->esc_like( $busqueda ) . '%';
 
-            $sql .= $wpdb->prepare(
-                ' WHERE name LIKE %s
-                    OR email LIKE %s
-                    OR subject LIKE %s',
-                $coincidencia,
-                $coincidencia,
-                $coincidencia
-            );
+            $condiciones[] = '(name LIKE %s OR email LIKE %s OR subject LIKE %s)';
+            $valores[]     = $coincidencia;
+            $valores[]     = $coincidencia;
+            $valores[]     = $coincidencia;
         }
 
-        $sql .= " ORDER BY {$order_by}";
+        if ( 'no_leidos' === $filtro_estado ) {
+            $condiciones[] = 'is_read = %d';
+            $valores[]     = 0;
+        } elseif ( 'leidos' === $filtro_estado ) {
+            $condiciones[] = 'is_read = %d';
+            $valores[]     = 1;
+        }
+
+        $sql = "SELECT *
+                FROM {$this->table_name}";
+
+        if ( ! empty( $condiciones ) ) {
+            $sql .= ' WHERE ' . implode( ' AND ', $condiciones );
+        }
+
+        if ( 'no_leidos' === $orden ) {
+            $sql .= ' ORDER BY is_read ASC, created_at DESC, id DESC';
+        } else {
+            $sql .= ' ORDER BY created_at DESC, id DESC';
+        }
+
+        if ( ! empty( $valores ) ) {
+            $sql = $wpdb->prepare( $sql, $valores );
+        }
 
         return $wpdb->get_results( $sql );
     }

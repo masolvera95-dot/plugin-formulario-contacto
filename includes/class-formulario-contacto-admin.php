@@ -177,6 +177,7 @@ class Formulario_Contacto_Admin {
         }
 
         $pagina = sanitize_key( wp_unslash( $_GET['page'] ) );
+
         $paginas_permitidas = array(
             'formulario-contacto',
             'formulario-contacto-ajustes',
@@ -192,9 +193,11 @@ class Formulario_Contacto_Admin {
             return;
         }
 
+        $archivo_principal = dirname( __FILE__, 2 ) . '/formulario-contacto.php';
+
         $url_css = plugins_url(
             'assets/css/admin-styles.css',
-            dirname( __FILE__, 2 ) . '/formulario-contacto.php'
+            $archivo_principal
         );
 
         wp_enqueue_style(
@@ -203,6 +206,20 @@ class Formulario_Contacto_Admin {
             array(),
             (string) filemtime( $ruta_css )
         );
+    }
+
+    private function sanitizar_orden( $orden ) {
+        return 'no_leidos' === $orden
+            ? 'no_leidos'
+            : 'recientes';
+    }
+
+    private function sanitizar_filtro_estado( $filtro_estado ) {
+        $filtros_validos = array( 'todos', 'no_leidos', 'leidos' );
+
+        return in_array( $filtro_estado, $filtros_validos, true )
+            ? $filtro_estado
+            : 'todos';
     }
 
     private function obtener_busqueda_get() {
@@ -229,29 +246,39 @@ class Formulario_Contacto_Admin {
         );
     }
 
-    private function sanitizar_orden( $orden ) {
-        return 'no_leidos' === $orden
-            ? 'no_leidos'
-            : 'recientes';
-    }
-
     private function obtener_orden_post() {
         if ( ! isset( $_POST['orden'] ) ) {
             return 'recientes';
         }
 
         return $this->sanitizar_orden(
-            sanitize_text_field( wp_unslash( $_POST['orden'] ) )
+            sanitize_text_field(
+                wp_unslash( $_POST['orden'] )
+            )
+        );
+    }
+
+    private function obtener_filtro_estado_post() {
+        if ( ! isset( $_POST['filtro_estado'] ) ) {
+            return 'todos';
+        }
+
+        return $this->sanitizar_filtro_estado(
+            sanitize_text_field(
+                wp_unslash( $_POST['filtro_estado'] )
+            )
         );
     }
 
     private function redirigir_a_lista(
         $orden = 'recientes',
-        $busqueda = ''
+        $busqueda = '',
+        $filtro_estado = 'todos'
     ) {
         $argumentos = array(
-            'page'  => 'formulario-contacto',
-            'orden' => $this->sanitizar_orden( $orden ),
+            'page'          => 'formulario-contacto',
+            'orden'         => $this->sanitizar_orden( $orden ),
+            'filtro_estado' => $this->sanitizar_filtro_estado( $filtro_estado ),
         );
 
         if ( '' !== $busqueda ) {
@@ -265,6 +292,32 @@ class Formulario_Contacto_Admin {
 
         wp_safe_redirect( $url );
         exit;
+    }
+
+    private function crear_url_lista(
+        $orden,
+        $busqueda,
+        $filtro_estado,
+        $mensaje_id = 0
+    ) {
+        $argumentos = array(
+            'page'          => 'formulario-contacto',
+            'orden'         => $this->sanitizar_orden( $orden ),
+            'filtro_estado' => $this->sanitizar_filtro_estado( $filtro_estado ),
+        );
+
+        if ( '' !== $busqueda ) {
+            $argumentos['busqueda'] = $busqueda;
+        }
+
+        if ( 0 < absint( $mensaje_id ) ) {
+            $argumentos['mensaje_id'] = absint( $mensaje_id );
+        }
+
+        return add_query_arg(
+            $argumentos,
+            admin_url( 'admin.php' )
+        );
     }
 
     public function eliminar_mensaje() {
@@ -294,7 +347,7 @@ class Formulario_Contacto_Admin {
             wp_die( 'El ID del mensaje no es válido.' );
         }
 
-        $db = new Formulario_Contacto_DB();
+        $db        = new Formulario_Contacto_DB();
         $resultado = $db->eliminar_mensaje( $mensaje_id );
 
         if ( false === $resultado ) {
@@ -307,7 +360,8 @@ class Formulario_Contacto_Admin {
 
         $this->redirigir_a_lista(
             $this->obtener_orden_post(),
-            $this->obtener_busqueda_post()
+            $this->obtener_busqueda_post(),
+            $this->obtener_filtro_estado_post()
         );
     }
 
@@ -341,13 +395,11 @@ class Formulario_Contacto_Admin {
         $db = new Formulario_Contacto_DB();
         $db->actualizar_estado_lectura( $mensaje_id, 1 );
 
-        $url = add_query_arg(
-            array(
-                'page'       => 'formulario-contacto',
-                'mensaje_id' => $mensaje_id,
-                'orden'      => $this->obtener_orden_post(),
-            ),
-            admin_url( 'admin.php' )
+        $url = $this->crear_url_lista(
+            $this->obtener_orden_post(),
+            $this->obtener_busqueda_post(),
+            $this->obtener_filtro_estado_post(),
+            $mensaje_id
         );
 
         wp_safe_redirect( $url );
@@ -386,7 +438,8 @@ class Formulario_Contacto_Admin {
 
         $this->redirigir_a_lista(
             $this->obtener_orden_post(),
-            $this->obtener_busqueda_post()
+            $this->obtener_busqueda_post(),
+            $this->obtener_filtro_estado_post()
         );
     }
 
@@ -402,6 +455,12 @@ class Formulario_Contacto_Admin {
             : 'recientes';
 
         $busqueda = $this->obtener_busqueda_get();
+
+        $filtro_estado = isset( $_GET['filtro_estado'] )
+            ? $this->sanitizar_filtro_estado(
+                sanitize_text_field( wp_unslash( $_GET['filtro_estado'] ) )
+            )
+            : 'todos';
 
         $db = new Formulario_Contacto_DB();
 
@@ -423,18 +482,10 @@ class Formulario_Contacto_Admin {
                 $mensaje->is_read = 1;
             }
 
-            $argumentos_volver = array(
-                'page'  => 'formulario-contacto',
-                'orden' => $orden,
-            );
-
-            if ( '' !== $busqueda ) {
-                $argumentos_volver['busqueda'] = $busqueda;
-            }
-
-            $url_volver = add_query_arg(
-                $argumentos_volver,
-                admin_url( 'admin.php' )
+            $url_volver = $this->crear_url_lista(
+                $orden,
+                $busqueda,
+                $filtro_estado
             );
 
             echo '<div class="lpsd-contacto-detalle">';
@@ -448,7 +499,6 @@ class Formulario_Contacto_Admin {
             echo '</div>';
 
             echo '<div class="lpsd-contacto-detalle__tarjeta">';
-
             echo '<div class="lpsd-contacto-detalle__datos">';
 
             echo '<div class="lpsd-contacto-detalle__dato">';
@@ -502,6 +552,9 @@ class Formulario_Contacto_Admin {
             echo '<input type="hidden" name="busqueda" value="' .
                 esc_attr( $busqueda ) .
                 '">';
+            echo '<input type="hidden" name="filtro_estado" value="' .
+                esc_attr( $filtro_estado ) .
+                '">';
 
             wp_nonce_field(
                 'formulario_contacto_estado_lectura',
@@ -521,7 +574,11 @@ class Formulario_Contacto_Admin {
             return;
         }
 
-        $mensajes = $db->obtener_mensajes( $orden, $busqueda );
+        $mensajes = $db->obtener_mensajes(
+            $orden,
+            $busqueda,
+            $filtro_estado
+        );
 
         echo '<div class="wrap lpsd-contactos-lista">';
         echo '<h1 class="lpsd-contactos-lista__titulo">LPSD - Contactos</h1>';
@@ -531,6 +588,10 @@ class Formulario_Contacto_Admin {
             '" class="lpsd-busqueda-mensajes">';
 
         echo '<input type="hidden" name="page" value="formulario-contacto">';
+        echo '<input type="hidden" name="orden" value="' . esc_attr( $orden ) . '">';
+        echo '<input type="hidden" name="filtro_estado" value="' .
+            esc_attr( $filtro_estado ) .
+            '">';
 
         echo '<label class="screen-reader-text" for="lpsd-busqueda">';
         echo 'Buscar mensajes';
@@ -544,20 +605,13 @@ class Formulario_Contacto_Admin {
             placeholder="Buscar por nombre, correo o asunto"
         >';
 
-        submit_button(
-            'Buscar',
-            'secondary',
-            '',
-            false
-        );
+        submit_button( 'Buscar', 'secondary', '', false );
 
         if ( '' !== $busqueda ) {
-            $url_limpiar = add_query_arg(
-                array(
-                    'page'  => 'formulario-contacto',
-                    'orden' => $orden,
-                ),
-                admin_url( 'admin.php' )
+            $url_limpiar = $this->crear_url_lista(
+                $orden,
+                '',
+                $filtro_estado
             );
 
             echo ' <a class="button" href="' . esc_url( $url_limpiar ) . '">';
@@ -567,50 +621,76 @@ class Formulario_Contacto_Admin {
 
         echo '</form>';
 
-        $argumentos_base = array(
-            'page' => 'formulario-contacto',
+        $url_recientes = $this->crear_url_lista(
+            'recientes',
+            $busqueda,
+            $filtro_estado
         );
 
-        if ( '' !== $busqueda ) {
-            $argumentos_base['busqueda'] = $busqueda;
-        }
-
-        $url_recientes = add_query_arg(
-            array_merge(
-                $argumentos_base,
-                array( 'orden' => 'recientes' )
-            ),
-            admin_url( 'admin.php' )
-        );
-
-        $url_no_leidos = add_query_arg(
-            array_merge(
-                $argumentos_base,
-                array( 'orden' => 'no_leidos' )
-            ),
-            admin_url( 'admin.php' )
+        $url_no_leidos_primero = $this->crear_url_lista(
+            'no_leidos',
+            $busqueda,
+            $filtro_estado
         );
 
         $clase_recientes = 'button';
-        $clase_no_leidos = 'button';
+        $clase_no_leidos_primero = 'button';
 
         if ( 'recientes' === $orden ) {
             $clase_recientes .= ' button-primary';
         } else {
-            $clase_no_leidos .= ' button-primary';
+            $clase_no_leidos_primero .= ' button-primary';
         }
 
-        echo '<p class="formulario-contacto-filtros">';
+        echo '<div class="lpsd-contactos-lista__controles">';
+
+        echo '<div class="lpsd-contactos-lista__orden">';
         echo '<a class="' . esc_attr( $clase_recientes ) . '" href="' .
             esc_url( $url_recientes ) .
             '">Más recientes</a> ';
-        echo '<a class="' . esc_attr( $clase_no_leidos ) . '" href="' .
-            esc_url( $url_no_leidos ) .
+        echo '<a class="' . esc_attr( $clase_no_leidos_primero ) . '" href="' .
+            esc_url( $url_no_leidos_primero ) .
             '">No leídos primero</a>';
-        echo '</p>';
+        echo '</div>';
+
+        $filtros = array(
+            'todos' => 'Todos',
+            'no_leidos' => 'No leídos',
+            'leidos' => 'Leídos',
+        );
+
+        echo '<nav class="lpsd-filtro-estado" aria-label="Filtrar mensajes por estado">';
+
+        foreach ( $filtros as $valor => $etiqueta ) {
+            $url_filtro = $this->crear_url_lista(
+                $orden,
+                $busqueda,
+                $valor
+            );
+
+            $clase_filtro = 'lpsd-filtro-estado__boton';
+
+            if ( $filtro_estado === $valor ) {
+                $clase_filtro .= ' is-active';
+            }
+
+            echo '<a class="' . esc_attr( $clase_filtro ) .
+                '" href="' . esc_url( $url_filtro ) . '"';
+
+            if ( $filtro_estado === $valor ) {
+                echo ' aria-current="page"';
+            }
+
+            echo '>' . esc_html( $etiqueta ) . '</a>';
+        }
+
+        echo '</nav>';
+        echo '</div>';
 
         if ( empty( $mensajes ) ) {
-            echo '<p>No hay mensajes registrados para esta búsqueda.</p>';
+            echo '<p class="lpsd-contactos-lista__sin-resultados">';
+            echo 'No hay mensajes que coincidan con los filtros seleccionados.';
+            echo '</p>';
             echo '</div>';
             return;
         }
@@ -628,23 +708,15 @@ class Formulario_Contacto_Admin {
 
         foreach ( $mensajes as $mensaje ) {
             $no_leido = 0 === (int) $mensaje->is_read;
-            $estilo = $no_leido
+            $estilo   = $no_leido
                 ? 'font-weight: 700;'
                 : 'font-weight: 400;';
 
-            $argumentos_ver = array(
-                'page'       => 'formulario-contacto',
-                'mensaje_id' => $mensaje->id,
-                'orden'      => $orden,
-            );
-
-            if ( '' !== $busqueda ) {
-                $argumentos_ver['busqueda'] = $busqueda;
-            }
-
-            $url_ver = add_query_arg(
-                $argumentos_ver,
-                admin_url( 'admin.php' )
+            $url_ver = $this->crear_url_lista(
+                $orden,
+                $busqueda,
+                $filtro_estado,
+                $mensaje->id
             );
 
             echo '<tr>';
@@ -686,6 +758,9 @@ class Formulario_Contacto_Admin {
                 '">';
             echo '<input type="hidden" name="busqueda" value="' .
                 esc_attr( $busqueda ) .
+                '">';
+            echo '<input type="hidden" name="filtro_estado" value="' .
+                esc_attr( $filtro_estado ) .
                 '">';
 
             wp_nonce_field(

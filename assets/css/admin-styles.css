@@ -621,3 +621,95 @@
         white-space: nowrap;
     }
 }
+
+/* =========================================================
+   Filtro de mensajes leídos / no leídos
+   ========================================================= */
+
+.lpsd-contactos-lista__controles {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin: 0 0 17px;
+}
+
+.lpsd-contactos-lista__orden {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.lpsd-contactos-lista__orden .button {
+    border-color: #d9d0eb;
+    border-radius: 999px;
+    background: #fff;
+    color: #493a63;
+    font-weight: 600;
+}
+
+.lpsd-contactos-lista__orden .button-primary {
+    border-color: transparent;
+    background: linear-gradient(100deg, #7948e8, #ec42b7);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(121, 72, 232, 0.2);
+}
+
+.lpsd-filtro-estado {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 5px;
+    border: 1px solid #e6def1;
+    border-radius: 999px;
+    background: #f8f5ff;
+}
+
+.lpsd-filtro-estado__boton {
+    display: inline-flex;
+    min-height: 34px;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 15px;
+    border-radius: 999px;
+    color: #55466d;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition:
+        color 0.2s ease,
+        background-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.lpsd-filtro-estado__boton:hover {
+    background: #fff;
+    color: #673bb9;
+}
+
+.lpsd-filtro-estado__boton.is-active {
+    background: linear-gradient(100deg, #7948e8, #ec42b7);
+    box-shadow: 0 4px 10px rgba(121, 72, 232, 0.2);
+    color: #fff;
+}
+
+.lpsd-contactos-lista__sin-resultados {
+    max-width: 900px;
+    padding: 16px 18px;
+    border-left: 4px solid #00cbd4;
+    border-radius: 4px 12px 12px 4px;
+    background: #f8f5ff;
+    color: #413451;
+}
+
+@media (max-width: 782px) {
+    .lpsd-contactos-lista__controles {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .lpsd-filtro-estado {
+        max-width: 100%;
+    }
+}
