@@ -713,3 +713,83 @@
         max-width: 100%;
     }
 }
+
+/* =========================================================
+   Paginación de mensajes
+   ========================================================= */
+
+.lpsd-contactos-lista__resumen {
+    margin: 14px 0 8px;
+    color: #625a73;
+    font-size: 13px;
+}
+
+.lpsd-paginacion {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 18px 0 28px;
+    padding: 14px;
+    border: 1px solid #e6def1;
+    border-radius: 14px 0 14px 0;
+    background:
+        radial-gradient(
+            circle at 95% 0,
+            rgba(236, 66, 183, 0.1),
+            transparent 34%
+        ),
+        linear-gradient(110deg, #fff, #f8f5ff);
+}
+
+.lpsd-paginacion__boton {
+    display: inline-flex;
+    min-height: 38px;
+    align-items: center;
+    justify-content: center;
+    padding: 7px 16px;
+    border: 1px solid #d9d0eb;
+    border-radius: 999px;
+    background: #fff;
+    color: #55417a;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background-color 0.2s ease;
+}
+
+.lpsd-paginacion__boton:hover {
+    transform: translateY(-1px);
+    border-color: #7948e8;
+    background: #fbf9ff;
+    box-shadow: 0 4px 12px rgba(121, 72, 232, 0.14);
+    color: #6539bf;
+}
+
+.lpsd-paginacion__boton.is-disabled {
+    border-color: #ebe7f1;
+    background: #f5f3f8;
+    color: #9a93a6;
+    cursor: not-allowed;
+}
+
+.lpsd-paginacion__estado {
+    color: #30283e;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+@media (max-width: 600px) {
+    .lpsd-paginacion {
+        gap: 8px;
+    }
+
+    .lpsd-paginacion__boton {
+        padding-right: 12px;
+        padding-left: 12px;
+    }
+}

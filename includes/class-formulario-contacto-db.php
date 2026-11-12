@@ -97,22 +97,11 @@ class Formulario_Contacto_DB {
         );
     }
 
-    public function obtener_mensajes(
-        $orden = 'recientes',
-        $busqueda = '',
-        $filtro_estado = 'todos'
-    ) {
+    /**
+     * Construye las condiciones compartidas por la búsqueda y el filtro.
+     */
+    private function construir_condiciones( $busqueda, $filtro_estado ) {
         global $wpdb;
-
-        $orden = 'no_leidos' === $orden
-            ? 'no_leidos'
-            : 'recientes';
-
-        $filtros_validos = array( 'todos', 'no_leidos', 'leidos' );
-
-        if ( ! in_array( $filtro_estado, $filtros_validos, true ) ) {
-            $filtro_estado = 'todos';
-        }
 
         $condiciones = array();
         $valores     = array();
@@ -136,11 +125,45 @@ class Formulario_Contacto_DB {
             $valores[]     = 1;
         }
 
+        return array(
+            'condiciones' => $condiciones,
+            'valores'     => $valores,
+        );
+    }
+
+    public function obtener_mensajes(
+        $orden = 'recientes',
+        $busqueda = '',
+        $filtro_estado = 'todos',
+        $pagina = 1,
+        $por_pagina = 10
+    ) {
+        global $wpdb;
+
+        $orden = 'no_leidos' === $orden
+            ? 'no_leidos'
+            : 'recientes';
+
+        $filtros_validos = array( 'todos', 'no_leidos', 'leidos' );
+
+        if ( ! in_array( $filtro_estado, $filtros_validos, true ) ) {
+            $filtro_estado = 'todos';
+        }
+
+        $pagina     = max( 1, absint( $pagina ) );
+        $por_pagina = max( 1, absint( $por_pagina ) );
+        $offset     = ( $pagina - 1 ) * $por_pagina;
+
+        $filtro = $this->construir_condiciones(
+            $busqueda,
+            $filtro_estado
+        );
+
         $sql = "SELECT *
                 FROM {$this->table_name}";
 
-        if ( ! empty( $condiciones ) ) {
-            $sql .= ' WHERE ' . implode( ' AND ', $condiciones );
+        if ( ! empty( $filtro['condiciones'] ) ) {
+            $sql .= ' WHERE ' . implode( ' AND ', $filtro['condiciones'] );
         }
 
         if ( 'no_leidos' === $orden ) {
@@ -149,11 +172,42 @@ class Formulario_Contacto_DB {
             $sql .= ' ORDER BY created_at DESC, id DESC';
         }
 
-        if ( ! empty( $valores ) ) {
-            $sql = $wpdb->prepare( $sql, $valores );
+        $sql .= ' LIMIT %d OFFSET %d';
+
+        $valores          = $filtro['valores'];
+        $valores[]        = $por_pagina;
+        $valores[]        = $offset;
+        $sql_preparada    = $wpdb->prepare( $sql, $valores );
+
+        return $wpdb->get_results( $sql_preparada );
+    }
+
+    public function contar_mensajes( $busqueda = '', $filtro_estado = 'todos' ) {
+        global $wpdb;
+
+        $filtros_validos = array( 'todos', 'no_leidos', 'leidos' );
+
+        if ( ! in_array( $filtro_estado, $filtros_validos, true ) ) {
+            $filtro_estado = 'todos';
         }
 
-        return $wpdb->get_results( $sql );
+        $filtro = $this->construir_condiciones(
+            $busqueda,
+            $filtro_estado
+        );
+
+        $sql = "SELECT COUNT(*)
+                FROM {$this->table_name}";
+
+        if ( ! empty( $filtro['condiciones'] ) ) {
+            $sql .= ' WHERE ' . implode( ' AND ', $filtro['condiciones'] );
+        }
+
+        if ( ! empty( $filtro['valores'] ) ) {
+            $sql = $wpdb->prepare( $sql, $filtro['valores'] );
+        }
+
+        return (int) $wpdb->get_var( $sql );
     }
 
     public function obtener_mensaje( $id ) {
